@@ -1,0 +1,25 @@
+
+To be implemented
+=================
+
+- context menu
+   - back links
+   - buoys on/off
+- buoy nadir
+
+- scroll bars for window?
+- irregular edges
+- page shadow? (too slow)
+
+Implemented
+===========
+
+- buoy animation
+   - going into another page
+- kinetic scrolling
+- buoy
+- page rect
+- panning
+- no scroll bars for page
+- loading of page
+

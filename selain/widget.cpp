@@ -50,7 +50,8 @@ Widget::Widget(QWidget *parent)
     view->scene()->addItem(web);
     //web->setPos(20,20);
     view->setMinimumSize(800,600);
-    bgImg = new QGraphicsPixmapItem(QPixmap("../water2.jpg"));
+    bgImg = new QGraphicsPixmapItem(QPixmap("../sky.jpg"));
+    //bgImg = new QGraphicsPixmapItem(QPixmap("../water.jpg"));
     bgImg->setPos(0,0);
     bgImg->setZValue(-1000);
     scene()->addItem(bgImg);
@@ -151,16 +152,18 @@ WebItem *Widget::addBuoy(QWebElement elem)
 
     WebItem *buoy = url2webs.value(URL, NULL);
     qDebug() << "add buoy? " << buoy;
-    if (buoy == NULL) {
-        buoy = new WebItem();
+    if (buoy == NULL || !buoy->isLoaded()) {
+        if (!buoy)
+            buoy = new WebItem();
 
         buoy->loader.setUrl(URL);
         buoy->loader.moveToThread(&buoy->loader);
         buoy->loader.start();
 
         scene()->addItem(buoy->loadingEllipse());
-    }
-    else
+        buoy->loadingEllipse()->setSpanAngle(250);
+        buoy->progres.start(1000/10);
+    } else
         emit buoy->pixmapReady();
 
     qDebug() << "add buoy? " << buoy;
@@ -248,6 +251,7 @@ void Widget::updatePixmapBuoyCoordinates()
             //buoy->setPos(web->mapToScene(r.center()) - QPointF(buoy->geometry().width(),buoy->geometry().height())*0.5);
             //QGraphicsRectItem *r = (QGraphicsRectItem *)buoy->childItems().at(0);
             //r->setBrush(QBrush(QColor(255,255,255)));
+            buoy->loadingEllipse()->setRect(-100,-100, 1,1);
             buoy->pixmapItem()->setPos(-100,-100);
             buoy->line()->setLine(-1,-1,-1,-1);
         }

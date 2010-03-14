@@ -9,4 +9,5 @@ SOURCES += main.cpp \
     webitem.cpp
 HEADERS += widget.h \
     webitem.h
-
+OTHER_FILES += sky.license \
+    sky.jpg

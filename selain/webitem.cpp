@@ -34,8 +34,9 @@ void Loader::run()
 void Loader::read()
 {
     while (proc->bytesAvailable() > 0) {
-        QString str(proc->readLine(10000));
-        str.chop(2);
+        QString str(proc->readLine(50000));
+        if (str.length() > 2)
+            str.chop(2);
 
         if (str.startsWith("progress: ")) {
             emit progress(str.split(" ").at(1).toInt());
@@ -49,7 +50,8 @@ void Loader::read()
             QPixmap pix;
             data >> pix;
             emit pixmap(pix);
-        }
+        } else
+            qDebug() << str;
     }
 }
 
@@ -111,6 +113,7 @@ WebItem::WebItem(): QGraphicsWebView()
     connect(&loader, SIGNAL(progress(int)), this, SLOT(loadProgressed(int)), Qt::QueuedConnection);
     connect(&loader, SIGNAL(pixmap(QPixmap)), this, SLOT(pixmapReady(QPixmap)), Qt::QueuedConnection);
     connect(&loader, SIGNAL(sizeInfo(int,int)), this, SLOT(setSize(int,int)), Qt::QueuedConnection);
+    connect(&loader, SIGNAL(terminated()), this, SLOT(stopLoader()), Qt::QueuedConnection);
 
     progres.start(1000/10);
     connect(&progres, SIGNAL(timeout()), this, SLOT(progressAnim()));
@@ -146,6 +149,8 @@ QPainterPath WebItem::shape() const
 
 void WebItem::stop()
 {
+    //if (loader.process())
+    //    loader.process()->close();
     loader.quit();
     progres.stop();
     kineticTimer.stop();

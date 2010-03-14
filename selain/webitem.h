@@ -24,6 +24,8 @@ public:
     virtual void run();
     void setUrl(QUrl url);
     inline QUrl url() { return this->_url; }
+    inline QProcess *process() { return this->proc; }
+
 private slots:
     void read();
     void finished(int,QProcess::ExitStatus);
@@ -99,6 +101,7 @@ private slots:
     void progressAnim();
     void loadProgressed(int val);
     void kineticScrolling();
+    inline void stopLoader() { this->loader.process()->kill(); }
 private:
     bool main; // or buoy
     qreal zoom;

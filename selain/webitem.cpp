@@ -74,7 +74,7 @@ Buoy::Buoy(): QGraphicsPixmapItem(0) {}
 Buoy::~Buoy() {}
 void Buoy::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    qDebug() << "release";
+    qDebug() << Q_FUNC_INFO << "release";
     emit web->buoyClicked();
 }
 void Buoy::mouseMoveEvent ( QGraphicsSceneMouseEvent * ev )
@@ -283,7 +283,7 @@ void WebItem::sizeChanged(QSize s)
 
 void WebItem::mouseMoveEvent ( QGraphicsSceneMouseEvent * ev )
 {
-    qDebug() << Q_FUNC_INFO;
+    //qDebug() << Q_FUNC_INFO;
     if (!main)
         return;
     struct Event e = {ev->screenPos(), QTime::currentTime()};
@@ -297,34 +297,37 @@ void WebItem::mouseMoveEvent ( QGraphicsSceneMouseEvent * ev )
 }
 void WebItem::mousePressEvent ( QGraphicsSceneMouseEvent * ev )
 {
-    qDebug() << Q_FUNC_INFO;
+    //qDebug() << Q_FUNC_INFO;
     lastEvents.clear();
     kineticTimer.stop();
 
-    //QGraphicsWebView::mousePressEvent(ev);
+    QGraphicsWebView::mousePressEvent(ev);
     pressPos = ev->scenePos();
     lastPos = pressPos;
 }
 void WebItem::mouseReleaseEvent ( QGraphicsSceneMouseEvent * ev )
 {
-    qDebug() << Q_FUNC_INFO;
+    //qDebug() << Q_FUNC_INFO;
     if (!main)
-        emit buoyClicked();
-    else if (lastEvents.count() > 2){
-        //QGraphicsWebView::mouseReleaseEvent(ev);
+        ; //DONE in buoy code: emit buoyClicked();
+    else {
+        qDebug() << Q_FUNC_INFO << lastEvents.count();
+        if (lastEvents.count() > 2){
 
-        // let's find out the kinetics for last (five) events..
-        while (lastEvents.count() > 5)
-            lastEvents.removeFirst();
+            // let's find out the kinetics for last (five) events..
+            while (lastEvents.count() > 5)
+                lastEvents.removeFirst();
 
-        // direction
-        kineticDirection = lastEvents.first().xy - lastEvents.last().xy;
-        QVector2D s(kineticDirection);
-        // v = s/t
-        kineticSpeed = s.length()/lastEvents.first().time.msecsTo(lastEvents.last().time);
+            // direction
+            kineticDirection = lastEvents.first().xy - lastEvents.last().xy;
+            QVector2D s(kineticDirection);
+            // v = s/t
+            kineticSpeed = s.length()/lastEvents.first().time.msecsTo(lastEvents.last().time);
 
-        qDebug() << kineticDirection << kineticSpeed;
-        kineticTimer.start(1000/30);
+            qDebug() << kineticDirection << kineticSpeed;
+            kineticTimer.start(1000/30);
+        } else
+            QGraphicsWebView::mouseReleaseEvent(ev);
     }
 }
 

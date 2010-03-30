@@ -35,6 +35,8 @@ void Obj::prepareToGrabPage()
 void Obj::grabPage()
 {
     QSize size = web->page()->mainFrame()->contentsSize();
+    web->setMinimumSize(size);
+    web->setMaximumSize(size);
     QPixmap pix = QPixmap::grabWidget(web, 0,0,size.width(),size.height());
     //show(pix);
     pix = pix.scaled(70, 100);

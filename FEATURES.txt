@@ -9,7 +9,7 @@ To be implemented
 
 - scroll bars for window?
 - irregular edges
-- page shadow? (too slow)
+- page shadow? (was too slow)
 
 Implemented
 ===========

@@ -41,6 +41,7 @@ Widget::Widget(QWidget *parent)
     //web->load(QUrl(f.absoluteFilePath()));
     //web->load(QUrl("http://ixonos.com"));
     web->load(QUrl("http://google.com"));
+    //web->load(QUrl("http://sektori.com"));
     web->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
     web->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     web->setPos(100,100);
@@ -75,6 +76,7 @@ Widget::Widget(QWidget *parent)
     connect(&t, SIGNAL(timeout()), &(web->loader), SLOT(dbg()), Qt::QueuedConnection);
     t.start();
     */
+    qDebug() << "foo";
 }
 
 Widget::~Widget()
@@ -90,15 +92,17 @@ void Widget::resizeEvent(QResizeEvent *event)
     circle->setZValue(-100);
 }
 
-
+static int loads = 0;
 void Widget::loadFinished(bool ok)
 {
+    qDebug() << Q_FUNC_INFO;
     QSize r = web->page()->mainFrame()->contentsSize();
     web->setGeometry(QRectF(web->x(),web->y(),r.width(), r.height()));
 
     QGraphicsItem *rect = scene()->addRect(0, 0, r.width(), r.height(), QPen(), QBrush(QColor(255,255,255)));
     rect->setParentItem(web);
     rect->setFlag(QGraphicsItem::ItemStacksBehindParent);
+    if (loads++ < 2) return;
 
     foreach(QWebElement elem, web->page()->currentFrame()->findAllElements("a")){
         WebItem *buoy = addBuoy(elem);
@@ -212,7 +216,7 @@ void Widget::updatePixmapBuoyCoordinates()
         if (pow2(anchorP2.x()/center2.x()) + pow2(anchorP2.y()/center2.y()) <= 1) {
 
             QGraphicsRectItem *rect = buoy->bgRect();
-            rect->setBrush(QBrush(QColor(0,255,255)));
+            rect->setBrush(QBrush(QColor(255,255,255)));
 
             // project to buoy circle
             qreal r = center2.x(),
@@ -294,6 +298,8 @@ void Widget::newMain()
     //web->pixmapItem()->setParentItem(web);
 
 
+
+
     // create animation
     int duration = 5*1000; //ms
     QParallelAnimationGroup *group = new QParallelAnimationGroup(this);
@@ -309,6 +315,7 @@ void Widget::newMain()
     QPropertyAnimation *z = new QPropertyAnimation(web, "z", group);
     z->setEndValue(0);
     z->setDuration(duration);
+
 
     /*
     QPropertyAnimation *rotate = new QPropertyAnimation(web, "rotation", group);
@@ -354,4 +361,13 @@ void Widget::createBuoysAfterNewMain()
 
     connect(web, SIGNAL(xChanged()), this, SLOT(updatePixmapBuoyCoordinates()));
     connect(web, SIGNAL(yChanged()), this, SLOT(updatePixmapBuoyCoordinates()));
+
+    web->setBuoy(false);
+
+    QSize r = web->page()->mainFrame()->contentsSize();
+    QGraphicsRectItem *rect = web->bgRect(); //scene()->addRect(0, 0, r.width(), r.height(), QPen(), QBrush(QColor(255,255,255)));
+    rect->setParentItem(web);
+    rect->setFlag(QGraphicsItem::ItemStacksBehindParent);
+    rect->setRect(0,0, r.width(), r.height());
+    scene()->addItem(rect);
 }
